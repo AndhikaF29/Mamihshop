@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "68791760259",
+    "project_id": "mamishop-e31dc",
+    "storage_bucket": "mamishop-e31dc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:68791760259:android:fd321d3fa7e744b533b2b6",
+        "android_client_info": {
+          "package_name": "com.example.mamihshop"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBjkmX8OkxGlueASlzvUQwLEYRiyW_tmXo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
