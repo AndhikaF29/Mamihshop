@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:mamihshop/pages/login_page.dart';
-import 'package:mamihshop/register_page.dart';
-import 'package:mamihshop/client_dashboard.dart';
-import 'package:mamihshop/pages/admin_dashboard.dart';
+import 'package:mamihshop/auth/login_page.dart';
+import 'package:mamihshop/auth/register_page.dart';
+import 'package:mamihshop/pages/users/client_dashboard.dart';
+import 'package:mamihshop/pages/admin/admin_dashboard.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,7 +19,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(), // Mengubah initialRoute menjadi home untuk menampilkan MyHomePage terlebih dahulu
+      home:
+          MyHomePage(), // Mengubah initialRoute menjadi home untuk menampilkan MyHomePage terlebih dahulu
       routes: {
         '/loginPage': (context) => LoginPage(),
         '/clientDashboard': (context) => ClientDashboard(),
