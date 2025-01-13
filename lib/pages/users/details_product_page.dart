@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
 class ProductDetailPage extends StatefulWidget {
   final Map<String, dynamic> product;
@@ -14,9 +15,10 @@ class ProductDetailPage extends StatefulWidget {
 }
 
 class _ProductDetailPageState extends State<ProductDetailPage> {
-  String _selectedSize = "M"; // Ukuran produk yang dipilih
-  int _quantity = 1; // Jumlah produk yang dipilih
-
+  String _selectedSize = "M";
+  int _quantity = 1;
+  static const Color primaryColor = Color(0xFFC9184A);
+  static const Color secondaryColor = Color(0xFFFF4D6D);
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
@@ -26,109 +28,285 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: primaryColor,
+        foregroundColor: Colors.white,
+        elevation: 0,
         title: Text(product["name"]),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Menampilkan gambar produk
-            Image.network(product["image"],
-                width: double.infinity, height: 250, fit: BoxFit.cover),
-            const SizedBox(height: 10),
-
-            // Nama produk
-            Text(product["name"],
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-
-            // Harga produk
-            Text("Rp ${product["price"]}",
-                style: const TextStyle(fontSize: 16, color: Colors.red)),
-
-            const SizedBox(height: 10),
-
-            // Deskripsi produk
-            Text(product["description"] ?? "Deskripsi tidak tersedia.",
-                style: const TextStyle(fontSize: 14),
-                textAlign: TextAlign.justify),
-
-            const SizedBox(height: 10),
-
-            // Ulasan produk
-            Row(
+            // Gambar Produk dengan Container Gradient
+            Stack(
               children: [
-                const Icon(Icons.star, color: Colors.yellow, size: 16),
-                Text(product["rating"].toString()),
-                const Spacer(),
-                Text("(${product["reviews"] ?? 0} ulasan)")
-              ],
-            ),
-
-            const SizedBox(height: 20),
-
-            // Pilihan ukuran produk
-            DropdownButton<String>(
-              value: _selectedSize,
-              items: ["S", "M", "L"].map((size) {
-                return DropdownMenuItem(value: size, child: Text(size));
-              }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  _selectedSize = value!;
-                });
-              },
-            ),
-
-            const SizedBox(height: 10),
-
-            // Pilihan jumlah produk
-            Row(
-              children: [
-                const Text("Jumlah: "),
-                IconButton(
-                  icon: const Icon(Icons.remove),
-                  onPressed: _quantity > 1
-                      ? () {
-                          setState(() {
-                            _quantity--;
-                          });
-                        }
-                      : null,
+                Container(
+                  height: 300,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: NetworkImage(product["image"]),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
-                Text("$_quantity"),
-                IconButton(
-                  icon: const Icon(Icons.add),
-                  onPressed: () {
-                    setState(() {
-                      _quantity++;
-                    });
-                  },
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    height: 80,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                        colors: [
+                          Colors.black.withOpacity(0.6),
+                          Colors.transparent,
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
 
-            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Nama dan Harga Produk
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          product["name"],
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        "Rp ${NumberFormat.decimalPattern('id').format(int.parse(product["price"].toString()))}",
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: secondaryColor,
+                        ),
+                      ),
+                    ],
+                  ),
 
-            // Tombol untuk menambah produk ke keranjang
-            ElevatedButton.icon(
-              onPressed: user == null
-                  ? () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text(
-                                "Silakan login untuk menambahkan ke keranjang")),
-                      );
-                    }
-                  : () {
-                      _addToCart(user.uid, product, _selectedSize, _quantity);
-                      Navigator.pop(context);
-                    },
-              icon: const Icon(Icons.add_shopping_cart),
-              label: const Text("Tambah ke Keranjang"),
+                  const SizedBox(height: 16),
+
+                  // Rating dan Ulasan
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.star, color: Colors.amber, size: 20),
+                        const SizedBox(width: 4),
+                        Text(
+                          product["rating"].toString(),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          "(${product["reviews"] ?? 0} ulasan)",
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Deskripsi
+                  const Text(
+                    "Deskripsi",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    product["description"] ?? "Deskripsi tidak tersedia.",
+                    style: TextStyle(
+                      fontSize: 14,
+                      height: 1.5,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Ukuran dan Jumlah
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Ukuran",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Container(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 12),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey[300]!),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: DropdownButton<String>(
+                                value: _selectedSize,
+                                isExpanded: true,
+                                underline: Container(),
+                                items: ["S", "M", "L"].map((size) {
+                                  return DropdownMenuItem(
+                                    value: size,
+                                    child: Text(size),
+                                  );
+                                }).toList(),
+                                onChanged: (value) {
+                                  setState(() {
+                                    _selectedSize = value!;
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Jumlah",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Container(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey[300]!),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.remove),
+                                    onPressed: _quantity > 1
+                                        ? () {
+                                            setState(() {
+                                              _quantity--;
+                                            });
+                                          }
+                                        : null,
+                                    color: primaryColor,
+                                  ),
+                                  Text(
+                                    "$_quantity",
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.add),
+                                    onPressed: () {
+                                      setState(() {
+                                        _quantity++;
+                                      });
+                                    },
+                                    color: primaryColor,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ],
+        ),
+      ),
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.3),
+              spreadRadius: 1,
+              blurRadius: 5,
+              offset: const Offset(0, -3),
+            ),
+          ],
+        ),
+        child: ElevatedButton.icon(
+          onPressed: user == null
+              ? () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content:
+                          Text("Silakan login untuk menambahkan ke keranjang"),
+                    ),
+                  );
+                }
+              : () {
+                  _addToCart(user.uid, product, _selectedSize, _quantity);
+                  Navigator.pop(context);
+                },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: primaryColor,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          icon: const Icon(Icons.shopping_cart),
+          label: const Text(
+            "Tambah ke Keranjang",
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
       ),
     );
@@ -137,40 +315,57 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   // Fungsi untuk menambahkan produk ke keranjang
   void _addToCart(String userId, Map<String, dynamic> product, String size,
       int quantity) async {
-    final cartDoc = await _firestore
-        .collection("carts")
-        .doc(
-            "${userId}_${product['id']}_$size") // Kombinasikan userId dan productId serta size
-        .get();
+    String productId =
+        product['id'] ?? DateTime.now().millisecondsSinceEpoch.toString();
 
-    if (cartDoc.exists) {
-      // Jika produk sudah ada di keranjang, update jumlahnya
-      int existingQuantity = cartDoc["quantity"];
-      _firestore.collection("carts").doc(cartDoc.id).update({
-        "quantity": existingQuantity + quantity, // Tambahkan jumlah yang baru
-        "timestamp": FieldValue.serverTimestamp(), // Menambahkan timestamp
-      });
-    } else {
-      // Jika produk belum ada, buat entri baru
-      _firestore
+    try {
+      // Cek apakah produk dengan size yang sama sudah ada
+      final QuerySnapshot existingCart = await _firestore
           .collection("carts")
-          .doc("${userId}_${product['id']}_$size")
-          .set({
-        "userId": userId,
-        "productId": product['id'],
-        "name": product['name'],
-        "image": product['image'],
-        "price": product['price'],
-        "category": product['category'],
-        "rating": product['rating'],
-        "size": size,
-        "quantity": quantity,
-        "timestamp": FieldValue.serverTimestamp(),
-      });
-    }
+          .where("userId", isEqualTo: userId)
+          .where("productId", isEqualTo: productId)
+          .where("size", isEqualTo: size)
+          .get();
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Produk ditambahkan ke keranjang")),
-    );
+      if (existingCart.docs.isNotEmpty) {
+        // Update quantity jika produk sudah ada
+        final existingDoc = existingCart.docs.first;
+        int currentQuantity = existingDoc.get("quantity") ?? 0;
+
+        await _firestore.collection("carts").doc(existingDoc.id).update({
+          "quantity": currentQuantity + quantity,
+          "timestamp": FieldValue.serverTimestamp(),
+        });
+      } else {
+        // Buat dokumen baru jika belum ada
+        await _firestore
+            .collection("carts")
+            .doc("${userId}_${productId}_$size")
+            .set({
+          "userId": userId,
+          "productId": productId,
+          "name": product['name'],
+          "image": product['image'],
+          "price": product['price'],
+          "category": product['category'],
+          "rating": product['rating'],
+          "size": size,
+          "quantity": quantity,
+          "timestamp": FieldValue.serverTimestamp(),
+        });
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Produk ditambahkan ke keranjang")),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Gagal menambahkan ke keranjang: $e")),
+        );
+      }
+    }
   }
 }

@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:mamihshop/auth/login_page.dart';
 import 'package:mamihshop/auth/register_page.dart';
-import 'package:mamihshop/pages/users/client_dashboard.dart';
 import 'package:mamihshop/pages/admin/admin_dashboard.dart';
+import 'package:mamihshop/pages/users/profile_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,14 +20,33 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home:
-          MyHomePage(), // Mengubah initialRoute menjadi home untuk menampilkan MyHomePage terlebih dahulu
+      home: FutureBuilder(
+        future: checkLoginStatus(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          // Jika sudah login, langsung ke ProfileScreen
+          if (snapshot.data == true) {
+            return const ProfileScreen();
+          }
+
+          // Jika belum login, ke MyHomePage
+          return const MyHomePage();
+        },
+      ),
       routes: {
         '/loginPage': (context) => LoginPage(),
-        '/clientDashboard': (context) => ClientDashboard(),
+        '/profileScreen': (context) => ProfileScreen(),
         '/adminDashboard': (context) => AdminDashboard(),
       },
     );
+  }
+
+  Future<bool> checkLoginStatus() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('isLoggedIn') ?? false;
   }
 }
 
