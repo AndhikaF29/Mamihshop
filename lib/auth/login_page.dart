@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:mamihshop/pages/users/home_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -24,7 +25,7 @@ class _LoginPageState extends State<LoginPage> {
       // Setelah login berhasil, periksa role pengguna
       _checkUserRole(userCredential.user!.uid);
     } catch (e) {
-      // Handle error
+      // Handle error jika login gagal
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Login failed: ${e.toString()}')),
       );
@@ -32,20 +33,40 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _checkUserRole(String userId) async {
-    DocumentSnapshot userDoc =
-        await FirebaseFirestore.instance.collection('users').doc(userId).get();
-    Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
-    String role = userData['role'];
+    try {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
 
-    // Navigasi berdasarkan role
-    if (role == 'client') {
-      Navigator.pushReplacementNamed(context, '/clientDashboard');
-    } else if (role == 'admin') {
-      Navigator.pushReplacementNamed(context, '/adminDashboard');
-    } else {
-      // Handle unknown role or error
+      if (!userDoc.exists) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('User not found in database')),
+        );
+        return;
+      }
+
+      Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
+      String role = userData['role'];
+
+      // Navigasi berdasarkan role
+      if (role == 'client') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  const HomePage()), // Halaman Home jika client
+        );
+      } else if (role == 'admin') {
+        Navigator.pushReplacementNamed(context, '/adminDashboard');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Role tidak dikenali')),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Role tidak dikenali')),
+        SnackBar(content: Text('Error checking user role: ${e.toString()}')),
       );
     }
   }
