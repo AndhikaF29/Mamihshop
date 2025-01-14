@@ -8,6 +8,9 @@ import 'package:intl/intl.dart';
 import 'package:mamihshop/pages/users/find_screen.dart';
 import 'package:mamihshop/pages/users/trending_screen.dart';
 import 'package:mamihshop/services/notification_service.dart';
+import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -32,10 +35,45 @@ class _HomePageState extends State<HomePage> {
     'images/2.jpg',
     'images/3.jpg',
   ];
+  final NotificationService _notificationService = NotificationService();
+  StreamSubscription? _orderSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _listenToOrderChanges();
+  }
+
+  void _listenToOrderChanges() {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      _orderSubscription = FirebaseFirestore.instance
+          .collection('checkouts')
+          .where('userId', isEqualTo: user.uid)
+          .snapshots()
+          .listen((snapshot) {
+        for (var change in snapshot.docChanges) {
+          final orderData = change.doc.data() as Map<String, dynamic>;
+
+          // Debug print
+          print('Order changed: ${change.doc.id}');
+          print('New status: ${orderData['orderStatus']}');
+
+          _notificationService.createNotification(
+            userId: user.uid,
+            orderId: change.doc.id,
+            status: orderData['orderStatus'],
+            context: context,
+          );
+        }
+      });
+    }
+  }
 
   @override
   void dispose() {
     _pageController.dispose();
+    _orderSubscription?.cancel();
     super.dispose();
   }
 
