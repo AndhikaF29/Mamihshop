@@ -61,6 +61,7 @@ class _TrendingScreenState extends State<TrendingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false, // Menghapus tombol kembali
         backgroundColor: primaryColor,
         title: const Text(
           'Trending News',

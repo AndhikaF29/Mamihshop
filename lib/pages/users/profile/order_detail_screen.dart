@@ -14,15 +14,15 @@ class OrderDetailScreen extends StatelessWidget {
 
   String _formatStatus(String status) {
     switch (status.toLowerCase()) {
-      case 'pending':
-        return 'Menunggu Pembayaran';
-      case 'processing':
-        return 'Diproses';
-      case 'shipped':
+      case 'dikemas':
+        return 'Dikemas';
+      case 'dikirim':
         return 'Dikirim';
-      case 'delivered':
+      case 'pengembalian':
+        return 'Pengembalian';
+      case 'selesai':
         return 'Selesai';
-      case 'cancelled':
+      case 'dibatalkan':
         return 'Dibatalkan';
       default:
         return status;
@@ -31,18 +31,18 @@ class OrderDetailScreen extends StatelessWidget {
 
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
-      case 'pending':
-        return const Color(0xFFFFA726);
-      case 'processing':
-        return const Color(0xFF2196F3);
-      case 'shipped':
-        return const Color(0xFF8E24AA);
-      case 'delivered':
-        return const Color(0xFF4CAF50);
-      case 'cancelled':
-        return const Color(0xFFF44336);
+      case 'dikemas':
+        return const Color(0xFF2196F3); // Blue
+      case 'dikirim':
+        return const Color(0xFF8E24AA); // Purple
+      case 'pengembalian':
+        return const Color(0xFFFFA726); // Orange
+      case 'selesai':
+        return const Color(0xFF4CAF50); // Green
+      case 'dibatalkan':
+        return const Color(0xFFF44336); // Red
       default:
-        return const Color(0xFF757575);
+        return const Color.fromARGB(255, 0, 0, 0); // Default Blue
     }
   }
 
@@ -120,7 +120,7 @@ class OrderDetailScreen extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.all(16),
                     child: Text(
-                      'Produk yang Dipesan (${items.length})',
+                      'Produk yang Dipesan (${order['totalItems'] ?? items.length})',
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,

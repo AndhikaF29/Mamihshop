@@ -233,11 +233,15 @@ class _CartPageState extends State<CartPage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Total:',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
+                          // Tambahkan total items
+                          Text(
+                            'Total Items: ${snapshot.data!.docs.where((doc) => _selectedProductIds.contains(doc.id)).fold(0, (sum, doc) {
+                              var product = doc.data() as Map<String, dynamic>;
+                              return sum + (product["quantity"] as int? ?? 1);
+                            })}',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                           Text(
@@ -271,15 +275,21 @@ class _CartPageState extends State<CartPage> {
                             ? () {
                                 List<Map<String, dynamic>> selectedProducts =
                                     [];
+                                int totalItems = 0;
+
                                 for (var doc in snapshot.data!.docs) {
                                   if (_selectedProductIds.contains(doc.id)) {
                                     var productData =
                                         doc.data() as Map<String, dynamic>;
+                                    int quantity =
+                                        productData['quantity'] as int? ?? 1;
+                                    totalItems +=
+                                        quantity; // Menghitung total items
+
                                     selectedProducts.add({
                                       'cartId': doc.id,
-                                      'productId': productData[
-                                          'productId'], // pastikan field ini ada
-                                      'quantity': productData['quantity'],
+                                      'productId': productData['productId'],
+                                      'quantity': quantity,
                                     });
                                   }
                                 }
@@ -290,8 +300,9 @@ class _CartPageState extends State<CartPage> {
                                     builder: (context) => CheckoutScreen(
                                       selectedProductIds: _selectedProductIds,
                                       totalPrice: _totalPrice,
-                                      selectedProducts:
-                                          selectedProducts, // tambahkan parameter ini
+                                      selectedProducts: selectedProducts,
+                                      totalItems:
+                                          totalItems, // Tambahkan parameter ini
                                     ),
                                   ),
                                 ).then((success) {

@@ -14,32 +14,32 @@ class MyOrdersScreen extends StatelessWidget {
 
   String _getStatusColor(String status) {
     switch (status.toLowerCase()) {
-      case 'pending':
-        return '#FFA726'; // Orange
-      case 'processing':
+      case 'diproses':
         return '#2196F3'; // Blue
-      case 'shipped':
+      case 'menunggu pembayaran':
+        return '#FFA726'; // Orange
+      case 'dikirim':
         return '#8E24AA'; // Purple
-      case 'delivered':
+      case 'selesai':
         return '#4CAF50'; // Green
-      case 'cancelled':
+      case 'dibatalkan':
         return '#F44336'; // Red
       default:
-        return '#757575'; // Grey
+        return '#250902'; // Default Blue untuk 'Diproses'
     }
   }
 
   String _formatStatus(String status) {
     switch (status.toLowerCase()) {
-      case 'pending':
-        return 'Menunggu Pembayaran';
-      case 'processing':
+      case 'diproses':
         return 'Diproses';
-      case 'shipped':
+      case 'menunggu pembayaran':
+        return 'Menunggu Pembayaran';
+      case 'dikirim':
         return 'Dikirim';
-      case 'delivered':
+      case 'selesai':
         return 'Selesai';
-      case 'cancelled':
+      case 'dibatalkan':
         return 'Dibatalkan';
       default:
         return status;
@@ -115,8 +115,10 @@ class MyOrdersScreen extends StatelessWidget {
 
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(8),
+                  side: BorderSide(color: Colors.grey[200]!),
                 ),
                 child: InkWell(
                   onTap: () {
@@ -130,49 +132,59 @@ class MyOrdersScreen extends StatelessWidget {
                   child: Column(
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.grey[50],
-                          borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(12)),
+                          color: Colors.white,
+                          border: Border(
+                            bottom: BorderSide(color: Colors.grey[200]!),
+                          ),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
+                                const Icon(Icons.shopping_bag_outlined,
+                                    size: 16, color: Colors.grey),
+                                const SizedBox(width: 8),
                                 Text(
                                   'Order : ${order['checkoutId']?.toString().substring(2, 8) ?? ''}',
                                   style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 6,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Color(int.parse(_getStatusColor(
-                                            order['orderStatus'] ?? 'pending')
-                                        .replaceAll('#', '0xFF'))),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Text(
-                                    _formatStatus(
-                                        order['orderStatus'] ?? 'pending'),
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Color(int.parse(_getStatusColor(
+                                        order['orderStatus'] ?? 'pending')
+                                    .replaceAll('#', '0xFF'))),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                _formatStatus(
+                                    order['orderStatus'] ?? 'pending'),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
                             Text(
                               DateFormat('dd MMM yyyy, HH:mm')
                                   .format(timestamp),
@@ -181,121 +193,50 @@ class MyOrdersScreen extends StatelessWidget {
                                 fontSize: 12,
                               ),
                             ),
-                            const SizedBox(height: 4),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Pembayaran: ${order['paymentMethod'] ?? '-'}',
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 12,
-                              ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                const Icon(Icons.payment,
+                                    size: 14, color: Colors.grey),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Pembayaran: ${order['paymentMethod'] ?? '-'}',
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
                             ),
-                            Text(
-                              'Alamat: ${shippingAddress['fullAddress'] ?? '-'}',
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 12,
-                              ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                const Icon(Icons.location_on_outlined,
+                                    size: 14, color: Colors.grey),
+                                const SizedBox(width: 4),
+                                Expanded(
+                                  child: Text(
+                                    'Alamat: ${shippingAddress['fullAddress'] ?? '-'}',
+                                    style: TextStyle(
+                                      color: Colors.grey[600],
+                                      fontSize: 12,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
                       ),
-                      if (items.isNotEmpty) ...[
-                        const Divider(height: 1),
-                        ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: items.length,
-                          itemBuilder: (context, itemIndex) {
-                            final item = items[itemIndex];
-                            return Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                border: itemIndex != items.length - 1
-                                    ? Border(
-                                        bottom: BorderSide(
-                                          color: Colors.grey[200]!,
-                                          width: 1,
-                                        ),
-                                      )
-                                    : null,
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: Image.network(
-                                      item['productImage'] ?? '',
-                                      width: 60,
-                                      height: 60,
-                                      fit: BoxFit.cover,
-                                      errorBuilder:
-                                          (context, error, stackTrace) {
-                                        return Container(
-                                          width: 60,
-                                          height: 60,
-                                          color: Colors.grey[200],
-                                          child: const Icon(
-                                            Icons.image_not_supported,
-                                            color: Colors.grey,
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          item['productName'] ?? 'Produk',
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(
-                                              '${item['quantity']}x',
-                                              style: TextStyle(
-                                                color: Colors.grey[600],
-                                                fontSize: 12,
-                                              ),
-                                            ),
-                                            Text(
-                                              'Rp${_formatPrice(item['price'] ?? 0)}',
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.bold,
-                                                color: Color(0xFFC9184A),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                      ],
                       Container(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: Colors.grey[50],
-                          borderRadius: const BorderRadius.vertical(
-                              bottom: Radius.circular(12)),
+                          border: Border(
+                            top: BorderSide(color: Colors.grey[200]!),
+                          ),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -303,14 +244,15 @@ class MyOrdersScreen extends StatelessWidget {
                             Text(
                               'Total Pesanan',
                               style: TextStyle(
-                                color: Colors.grey[600],
+                                color: Colors.grey[800],
                                 fontSize: 14,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                             Text(
                               'Rp${_formatPrice(order['totalPrice'] ?? 0)}',
                               style: const TextStyle(
-                                fontSize: 16,
+                                fontSize: 14,
                                 fontWeight: FontWeight.bold,
                                 color: Color(0xFFC9184A),
                               ),

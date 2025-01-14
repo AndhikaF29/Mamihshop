@@ -10,11 +10,13 @@ class CheckoutScreen extends StatefulWidget {
   final List<String> selectedProductIds;
   final double totalPrice;
   final List<Map<String, dynamic>> selectedProducts;
+  final int totalItems;
 
   const CheckoutScreen({
     required this.selectedProductIds,
     required this.totalPrice,
     required this.selectedProducts,
+    required this.totalItems,
     Key? key,
   }) : super(key: key);
 
@@ -34,6 +36,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   String _selectedAddress = '';
   LatLng? _selectedLocation;
   List<Map<String, dynamic>> _selectedItems = [];
+  int _totalItems = 0;
 
   @override
   void initState() {
@@ -77,16 +80,22 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       if (currentUser == null) return;
 
       _selectedItems.clear();
+      int totalQuantity = 0;
+
+      print('Loading products for checkout...');
+      print('Selected Product IDs: ${widget.selectedProductIds}');
 
       for (String cartId in widget.selectedProductIds) {
         final cartDoc = await _firestore.collection('carts').doc(cartId).get();
-
-        print('Cart Data: ${cartDoc.data()}'); // Debug print
+        print('Cart Data for $cartId: ${cartDoc.data()}');
 
         if (cartDoc.exists && cartDoc.data()?['userId'] == currentUser.uid) {
           final cartData = cartDoc.data()!;
+          final int quantity = cartData['quantity'] ?? 1;
+          totalQuantity += quantity;
 
-          // Ambil detail produk
+          print('Cart quantity: $quantity');
+
           final productDoc = await _firestore
               .collection('products')
               .doc(cartData['productId'])
@@ -94,9 +103,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
           if (productDoc.exists) {
             final productData = productDoc.data()!;
-
-            // Pastikan quantity diambil dari cart
-            final int quantity = cartData['quantity'] ?? 1;
 
             _selectedItems.add({
               'cartId': cartId,
@@ -107,17 +113,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               'quantity': quantity,
               'userId': currentUser.uid
             });
-
-            print('Added item with quantity: $quantity'); // Debug print
           }
         }
       }
 
-      print('Final _selectedItems: $_selectedItems'); // Debug print
+      print('Total quantity calculated: $totalQuantity');
+      print('Selected items length: ${_selectedItems.length}');
 
       if (mounted) {
         setState(() {
           _isLoading = false;
+          _totalItems = totalQuantity;
         });
       }
     } catch (e) {
@@ -145,10 +151,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // Generate checkout ID dengan timestamp
       String checkoutId = 'CO${DateTime.now().millisecondsSinceEpoch}';
 
-      // Siapkan detail items untuk checkout
+      // Debug prints untuk _selectedItems
+      print('Selected Items before checkout:');
+      _selectedItems.forEach((item) {
+        print('Product: ${item['productName']}, Quantity: ${item['quantity']}');
+      });
+
       List<Map<String, dynamic>> checkoutItems = _selectedItems
           .map((item) => {
                 'productId': item['productId'],
@@ -160,17 +170,27 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               })
           .toList();
 
-      // Hitung total items
-      int totalItems =
-          checkoutItems.fold(0, (sum, item) => sum + (item['quantity'] as int));
+      // Debug print untuk checkoutItems
+      print('Checkout Items:');
+      checkoutItems.forEach((item) {
+        print('Product: ${item['productName']}, Quantity: ${item['quantity']}');
+      });
 
-      // Data untuk checkout
+      // Hitung total items dan print hasilnya
+      int totalItems = checkoutItems.fold(0, (sum, item) {
+        int quantity = item['quantity'] as int;
+        print('Adding quantity: $quantity to sum: $sum');
+        return sum + quantity;
+      });
+
+      print('Final totalItems: $totalItems');
+
       Map<String, dynamic> checkoutData = {
         'checkoutId': checkoutId,
         'userId': user.uid,
         'userEmail': user.email,
         'items': checkoutItems,
-        'totalItems': totalItems,
+        'totalItems': widget.totalItems,
         'totalPrice': widget.totalPrice,
         'shippingAddress': {
           'fullAddress': _addressController.text,
@@ -185,10 +205,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         'contactPhone': _phoneController.text,
         'paymentMethod': _selectedPayment,
         'paymentStatus': 'pending',
-        'orderStatus': 'pending',
+        'orderStatus': 'Dikemas', // Ubah default status menjadi 'Dikemas'
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       };
+
+      // Debug print untuk final checkout data
+      print('Final Checkout Data:');
+      print('Total Items: ${checkoutData['totalItems']}');
+      print('Items length: ${checkoutData['items'].length}');
 
       // Simpan ke collection checkouts
       await _firestore
@@ -230,7 +255,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           .set({
         'checkoutId': checkoutId,
         'totalPrice': widget.totalPrice,
-        'totalItems': totalItems,
+        'totalItems': widget.totalItems,
         'status': 'pending',
         'createdAt': FieldValue.serverTimestamp(),
       });
@@ -309,13 +334,60 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       }
 
       Position position = await Geolocator.getCurrentPosition();
-      setState(() {
-        _selectedLocation = LatLng(position.latitude, position.longitude);
-        if (!_useDefaultAddress) {
-          _addressController.text =
-              '${position.latitude}, ${position.longitude}';
+      setState(() =>
+          _selectedLocation = LatLng(position.latitude, position.longitude));
+
+      // Dapatkan alamat dari koordinat
+      try {
+        List<Placemark> placemarks = await placemarkFromCoordinates(
+          position.latitude,
+          position.longitude,
+        );
+
+        if (placemarks.isNotEmpty) {
+          Placemark place = placemarks.first;
+          String address = '';
+
+          // Bangun alamat lengkap
+          if (place.street != null && place.street!.isNotEmpty) {
+            address += place.street!;
+          }
+          if (place.subLocality != null && place.subLocality!.isNotEmpty) {
+            address += address.isNotEmpty
+                ? ', ${place.subLocality}'
+                : place.subLocality!;
+          }
+          if (place.locality != null && place.locality!.isNotEmpty) {
+            address +=
+                address.isNotEmpty ? ', ${place.locality}' : place.locality!;
+          }
+          if (place.subAdministrativeArea != null &&
+              place.subAdministrativeArea!.isNotEmpty) {
+            address += address.isNotEmpty
+                ? ', ${place.subAdministrativeArea}'
+                : place.subAdministrativeArea!;
+          }
+          if (place.administrativeArea != null &&
+              place.administrativeArea!.isNotEmpty) {
+            address += address.isNotEmpty
+                ? ', ${place.administrativeArea}'
+                : place.administrativeArea!;
+          }
+          if (place.postalCode != null && place.postalCode!.isNotEmpty) {
+            address +=
+                address.isNotEmpty ? ' ${place.postalCode}' : place.postalCode!;
+          }
+
+          setState(() {
+            _addressController.text = address;
+          });
         }
-      });
+      } catch (e) {
+        print('Error getting address: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Gagal mendapatkan detail alamat')),
+        );
+      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error getting location: $e')),
@@ -452,7 +524,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              '${widget.selectedProducts.length} Produk',
+                              'Total Items: $_totalItems',
                               style: const TextStyle(
                                 fontSize: 14,
                                 color: Colors.white,

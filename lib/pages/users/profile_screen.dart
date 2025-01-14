@@ -107,6 +107,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text(
           'Profil',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
@@ -210,15 +211,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         },
                       ),
                       _buildDivider(),
-                      _buildMenuItemNew(
-                        icon: Icons.shopping_bag_outlined,
-                        title: 'Pesanan Saya',
-                        subtitle: 'Lihat riwayat pesanan Anda',
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const MyOrdersScreen()),
+                      StreamBuilder<QuerySnapshot>(
+                        stream: FirebaseFirestore.instance
+                            .collection('checkouts')
+                            .where('userId', isEqualTo: _auth.currentUser?.uid)
+                            .snapshots(),
+                        builder: (context, snapshot) {
+                          // Debug prints
+                          print('Current userId: ${_auth.currentUser?.uid}');
+                          print(
+                              'Connection state: ${snapshot.connectionState}');
+                          print('Has error: ${snapshot.hasError}');
+                          print('Error: ${snapshot.error}');
+                          if (snapshot.hasData) {
+                            print(
+                                'Number of checkouts: ${snapshot.data!.docs.length}');
+                            if (snapshot.data!.docs.isNotEmpty) {
+                              print(
+                                  'First checkout data: ${snapshot.data!.docs.first.data()}');
+                            }
+                          }
+
+                          int orderCount = 0;
+                          if (snapshot.hasData) {
+                            orderCount = snapshot.data!.docs.length;
+                          }
+
+                          return _buildMenuItemNew(
+                            icon: Icons.shopping_bag_outlined,
+                            title: 'Pesanan Saya',
+                            subtitle: 'Lihat riwayat pesanan Anda',
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const MyOrdersScreen()),
+                              );
+                            },
+                            badge:
+                                orderCount > 0 ? orderCount.toString() : null,
                           );
                         },
                       ),
@@ -279,16 +311,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required String subtitle,
     required VoidCallback onTap,
     Color? textColor,
+    String? badge,
   }) {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      leading: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: primaryColor.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Icon(icon, color: textColor ?? primaryColor),
+      leading: Stack(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: primaryColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: textColor ?? primaryColor),
+          ),
+          if (badge != null)
+            Positioned(
+              right: 0,
+              top: 0,
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                constraints: const BoxConstraints(
+                  minWidth: 20,
+                  minHeight: 20,
+                ),
+                child: Text(
+                  badge,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+        ],
       ),
       title: Text(
         title,

@@ -44,25 +44,11 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: primaryColor,
         title: _buildSearchBar(),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.shopping_cart, color: Colors.white),
-            onPressed: () {
-              if (user == null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text("Silakan login untuk melihat keranjang")),
-                );
-              } else {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => CartPage()),
-                );
-              }
-            },
-          ),
+          _buildCartIcon(),
           IconButton(
             icon: const Icon(Icons.notifications, color: Colors.white),
             onPressed: () {
@@ -148,7 +134,10 @@ class _HomePageState extends State<HomePage> {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const FindScreen()),
+          MaterialPageRoute(
+            builder: (context) => const FindScreen(),
+            settings: RouteSettings(arguments: null),
+          ),
         );
       },
       child: AbsorbPointer(
@@ -265,27 +254,18 @@ class _HomePageState extends State<HomePage> {
         }
 
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
 
-        List<Map<String, dynamic>> products = snapshot.data!.docs
-            .map((doc) => doc.data() as Map<String, dynamic>)
-            .toList();
-
-        // Filter berdasarkan kategori dan pencarian
-        List<Map<String, dynamic>> filteredProducts = products.where((product) {
-          return (_selectedCategory == "Semua" ||
-                  product["category"] == _selectedCategory) &&
-              (product["name"]
-                  .toLowerCase()
-                  .contains(_searchController.text.toLowerCase()));
-        }).toList();
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return const Center(child: Text('Tidak ada produk tersedia'));
+        }
 
         return GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           padding: const EdgeInsets.all(8),
-          itemCount: filteredProducts.length,
+          itemCount: snapshot.data!.docs.length,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
             crossAxisSpacing: 8,
@@ -293,7 +273,8 @@ class _HomePageState extends State<HomePage> {
             childAspectRatio: 0.65,
           ),
           itemBuilder: (context, index) {
-            var product = filteredProducts[index];
+            var productData =
+                snapshot.data!.docs[index].data() as Map<String, dynamic>;
             return Card(
               elevation: 2,
               shape: RoundedRectangleBorder(
@@ -305,7 +286,7 @@ class _HomePageState extends State<HomePage> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => ProductDetailPage(
-                        product: product,
+                        product: productData,
                         user: user,
                       ),
                     ),
@@ -318,10 +299,14 @@ class _HomePageState extends State<HomePage> {
                       borderRadius:
                           const BorderRadius.vertical(top: Radius.circular(8)),
                       child: Image.network(
-                        product["image"],
+                        productData["image"] ?? '',
                         height: 180,
                         width: double.infinity,
                         fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          print('Error loading image: $error');
+                          return const Icon(Icons.error);
+                        },
                       ),
                     ),
                     Padding(
@@ -330,7 +315,7 @@ class _HomePageState extends State<HomePage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            product["name"],
+                            productData["name"] ?? 'No Name',
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(fontSize: 14),
@@ -341,28 +326,12 @@ class _HomePageState extends State<HomePage> {
                               locale: 'id_ID',
                               symbol: 'Rp ',
                               decimalDigits: 0,
-                            ).format(int.parse(product["price"].toString())),
-                            style: TextStyle(
-                              color: primaryColor,
+                            ).format(
+                                int.parse(productData["price"].toString())),
+                            style: const TextStyle(
+                              color: Colors.red,
                               fontWeight: FontWeight.bold,
                             ),
-                          ),
-                          const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              const Icon(Icons.location_on,
-                                  size: 14, color: Colors.grey),
-                              const SizedBox(width: 4),
-                              Expanded(
-                                child: Text(
-                                  'Jakarta Pusat',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey[600],
-                                  ),
-                                ),
-                              ),
-                            ],
                           ),
                           const SizedBox(height: 4),
                           Row(
@@ -371,7 +340,7 @@ class _HomePageState extends State<HomePage> {
                                   size: 14, color: Colors.amber),
                               const SizedBox(width: 4),
                               Text(
-                                '${product["rating"]} | Terjual 100+',
+                                '${productData["rating"] ?? 0} | Terjual ${productData["sales"] ?? 0}',
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: Colors.grey[600],
@@ -453,6 +422,76 @@ class _HomePageState extends State<HomePage> {
     // Memberi notifikasi bahwa produk berhasil ditambahkan
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text("Produk ditambahkan ke keranjang")),
+    );
+  }
+
+  Widget _buildCartIcon() {
+    final User? user = _auth.currentUser;
+
+    return Stack(
+      children: [
+        IconButton(
+          icon: const Icon(Icons.shopping_cart, color: Colors.white),
+          onPressed: () {
+            if (user == null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content: Text("Silakan login untuk melihat keranjang")),
+              );
+            } else {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => CartPage()),
+              );
+            }
+          },
+        ),
+        if (user != null)
+          StreamBuilder<QuerySnapshot>(
+            stream: _firestore
+                .collection('carts')
+                .where('userId', isEqualTo: user.uid)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                return const SizedBox.shrink();
+              }
+
+              int totalItems = snapshot.data!.docs.fold(
+                  0,
+                  (sum, doc) =>
+                      sum + ((doc.data() as Map)['quantity'] ?? 1) as int);
+
+              if (totalItems == 0) return const SizedBox.shrink();
+
+              return Positioned(
+                right: 0,
+                top: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 0, 0, 0),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  constraints: const BoxConstraints(
+                    minWidth: 20,
+                    minHeight: 20,
+                  ),
+                  child: Center(
+                    child: Text(
+                      totalItems.toString(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+      ],
     );
   }
 }
