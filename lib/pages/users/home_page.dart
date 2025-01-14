@@ -7,6 +7,7 @@ import 'package:mamihshop/pages/users/cart_page.dart';
 import 'package:intl/intl.dart';
 import 'package:mamihshop/pages/users/find_screen.dart';
 import 'package:mamihshop/pages/users/trending_screen.dart';
+import 'package:mamihshop/services/notification_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
