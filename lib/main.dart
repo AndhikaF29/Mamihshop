@@ -6,6 +6,9 @@ import 'package:mamihshop/pages/admin/admin_dashboard.dart';
 import 'package:mamihshop/pages/users/profile_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mamihshop/services/firebase_messaging_service.dart';
+import 'package:mamihshop/pages/admin/add_product_page.dart';
+import 'package:mamihshop/pages/admin/product_management_page.dart';
+import 'package:mamihshop/pages/admin/edit_product_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -46,6 +49,10 @@ class MyApp extends StatelessWidget {
         '/loginPage': (context) => LoginPage(),
         '/profileScreen': (context) => ProfileScreen(),
         '/adminDashboard': (context) => AdminDashboard(),
+        '/productManagement': (context) => const ProductManagementPage(),
+        '/addProduct': (context) => const AddProductPage(),
+        '/editProduct': (context) => EditProductPage(
+            productId: ModalRoute.of(context)!.settings.arguments as String),
       },
     );
   }
