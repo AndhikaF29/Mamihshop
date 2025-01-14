@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import '../../utils/currency_format.dart';
 
 class ProductDetailPage extends StatefulWidget {
   final Map<String, dynamic> product;
@@ -91,7 +92,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         ),
                       ),
                       Text(
-                        "Rp ${NumberFormat.decimalPattern('id').format(int.parse(product["price"].toString()))}",
+                        CurrencyFormat.convertToIdr(product["price"]),
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,

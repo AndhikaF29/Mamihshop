@@ -272,7 +272,7 @@ class _FindScreenState extends State<FindScreen> {
                       locale: 'id_ID',
                       symbol: 'Rp ',
                       decimalDigits: 0,
-                    ).format(int.parse(product["price"].toString())),
+                    ).format(double.parse(product["price"].toString()).toInt()),
                     style: TextStyle(
                       color: primaryColor,
                       fontSize: 16,

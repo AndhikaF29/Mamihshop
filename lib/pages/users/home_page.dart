@@ -12,6 +12,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mamihshop/pages/users/notification_screen.dart';
+import 'package:mamihshop/utils/currency_format.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -377,14 +378,10 @@ class _HomePageState extends State<HomePage> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            NumberFormat.currency(
-                              locale: 'id_ID',
-                              symbol: 'Rp ',
-                              decimalDigits: 0,
-                            ).format(
-                                int.parse(productData["price"].toString())),
+                            CurrencyFormat.convertToIdr(productData["price"]),
                             style: const TextStyle(
-                              color: Colors.red,
+                              color: Color(0xFFC9184A),
+                              fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
