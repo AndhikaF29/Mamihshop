@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mamihshop/pages/users/checkout_screen.dart';
+import 'package:mamihshop/utils/currency_format.dart';
 
 class CartPage extends StatefulWidget {
   @override
@@ -33,12 +34,6 @@ class _CartPageState extends State<CartPage> {
     setState(() {
       _totalPrice = total;
     });
-  }
-
-  // Fungsi untuk memformat harga dengan koma
-  String _formatPrice(double price) {
-    return price.toStringAsFixed(0).replaceAllMapped(
-        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},');
   }
 
   @override
@@ -147,7 +142,9 @@ class _CartPageState extends State<CartPage> {
                                         ),
                                         const SizedBox(height: 4),
                                         Text(
-                                          "Rp ${_formatPrice(double.parse(product["price"].toString()))}",
+                                          CurrencyFormat.convertToIdr(
+                                              double.parse(
+                                                  product["price"].toString())),
                                           style: TextStyle(
                                             color: const Color(0xFFFF4D6D),
                                             fontWeight: FontWeight.w500,
@@ -245,7 +242,7 @@ class _CartPageState extends State<CartPage> {
                             ),
                           ),
                           Text(
-                            'Rp ${_formatPrice(_totalPrice)}',
+                            CurrencyFormat.convertToIdr(_totalPrice),
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -337,19 +334,5 @@ class _CartPageState extends State<CartPage> {
               },
             ),
     );
-  }
-
-  // Implementasi checkout
-  void _checkout() {
-    // Ambil produk yang dipilih berdasarkan ID yang ada di _selectedProductIds
-    // Misalnya, dapatkan produk dari Firestore dan proses checkout di sini
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Proses checkout dimulai")),
-    );
-
-    // Reset seleksi produk setelah checkout
-    setState(() {
-      _selectedProductIds.clear();
-    });
   }
 }
