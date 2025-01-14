@@ -26,4 +26,36 @@ class OrderManagement {
       print('Error updating order status: $e');
     }
   }
+
+  Future<void> sendOrderNotification({
+    required String userId,
+    required String orderId,
+    required String status,
+  }) async {
+    try {
+      // Ambil token FCM user dari Firestore
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+
+      String? fcmToken = userDoc.data()?['fcmToken'];
+
+      if (fcmToken != null) {
+        // Kirim notifikasi menggunakan Cloud Functions
+        await FirebaseFirestore.instance.collection('notifications_queue').add({
+          'token': fcmToken,
+          'title': 'Status Pesanan Berubah',
+          'body': 'Pesanan $orderId telah $status',
+          'data': {
+            'orderId': orderId,
+            'status': status,
+          },
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+      }
+    } catch (e) {
+      print('Error sending notification: $e');
+    }
+  }
 }

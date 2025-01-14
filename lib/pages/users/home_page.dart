@@ -11,6 +11,7 @@ import 'package:mamihshop/services/notification_service.dart';
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:mamihshop/pages/users/notification_screen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -91,7 +92,12 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             icon: const Icon(Icons.notifications, color: Colors.white),
             onPressed: () {
-              // TODO: Implementasi notifikasi
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const NotificationScreen(),
+                ),
+              );
             },
           ),
         ],

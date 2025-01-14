@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
-import '../../services/notification_service.dart';
 import 'profile/order_detail_screen.dart';
 
 class NotificationScreen extends StatefulWidget {
@@ -13,66 +12,152 @@ class NotificationScreen extends StatefulWidget {
 }
 
 class _NotificationScreenState extends State<NotificationScreen> {
-  final NotificationService _notificationService = NotificationService();
-  List<Map<String, dynamic>> _notifications = [];
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadNotifications();
-  }
-
-  Future<void> _loadNotifications() async {
-    setState(() => _isLoading = true);
-    final userId = 'current_user_id'; // Ganti dengan ID user yang sedang login
-    final notifications = await _notificationService.getNotifications(userId);
-    setState(() {
-      _notifications = notifications;
-      _isLoading = false;
-    });
-  }
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Notifikasi'),
+        title: const Text('Pemberitahuan'),
         backgroundColor: const Color(0xFFC9184A),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _notifications.isEmpty
-              ? const Center(child: Text('Belum ada notifikasi'))
-              : ListView.builder(
-                  itemCount: _notifications.length,
-                  itemBuilder: (context, index) {
-                    final notification = _notifications[index];
-                    return Card(
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      child: ListTile(
-                        title: Text(notification['title']),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(notification['message']),
-                            Text(
-                              DateFormat('dd MMM yyyy HH:mm').format(
-                                  DateTime.parse(notification['createdAt'])),
-                              style: TextStyle(
-                                  color: Colors.grey[600], fontSize: 12),
-                            ),
-                          ],
-                        ),
-                        leading: const CircleAvatar(
-                          backgroundColor: Color(0xFFC9184A),
-                          child: Icon(Icons.notifications, color: Colors.white),
-                        ),
-                      ),
-                    );
-                  },
+      body: StreamBuilder<QuerySnapshot>(
+        stream: _firestore
+            .collection('notifications')
+            .where('userId', isEqualTo: _auth.currentUser?.uid)
+            .orderBy('createdAt', descending: true)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final notifications = snapshot.data?.docs ?? [];
+
+          if (notifications.isEmpty) {
+            return const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.notifications_off,
+                    size: 64,
+                    color: Colors.grey,
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    'Belum ada pemberitahuan',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return ListView.builder(
+            itemCount: notifications.length,
+            itemBuilder: (context, index) {
+              final notification =
+                  notifications[index].data() as Map<String, dynamic>;
+              final createdAt = notification['createdAt'] as Timestamp;
+
+              return Dismissible(
+                key: Key(notifications[index].id),
+                background: Container(
+                  color: Colors.red,
+                  alignment: Alignment.centerRight,
+                  padding: const EdgeInsets.only(right: 20),
+                  child: const Icon(
+                    Icons.delete,
+                    color: Colors.white,
+                  ),
                 ),
+                direction: DismissDirection.endToStart,
+                onDismissed: (direction) {
+                  _firestore
+                      .collection('notifications')
+                      .doc(notifications[index].id)
+                      .delete();
+                },
+                child: Card(
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: const Color(0xFFC9184A),
+                      child: Icon(
+                        _getNotificationIcon(notification['type'] ?? ''),
+                        color: Colors.white,
+                      ),
+                    ),
+                    title: Text(
+                      notification['title'] ?? 'Pemberitahuan',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(notification['body'] ?? ''),
+                        const SizedBox(height: 4),
+                        Text(
+                          DateFormat('dd MMM yyyy, HH:mm')
+                              .format(createdAt.toDate()),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                    onTap: () async {
+                      if (notification['orderId'] != null) {
+                        final orderDoc = await _firestore
+                            .collection('checkouts')
+                            .doc(notification['orderId'])
+                            .get();
+
+                        if (orderDoc.exists && mounted) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => OrderDetailScreen(
+                                order: orderDoc.data()!,
+                              ),
+                            ),
+                          );
+                        }
+                      }
+                    },
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
+  }
+
+  IconData _getNotificationIcon(String type) {
+    switch (type) {
+      case 'order_status':
+        return Icons.local_shipping;
+      case 'payment':
+        return Icons.payment;
+      default:
+        return Icons.notifications;
+    }
   }
 }

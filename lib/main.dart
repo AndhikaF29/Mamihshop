@@ -5,10 +5,16 @@ import 'package:mamihshop/auth/register_page.dart';
 import 'package:mamihshop/pages/admin/admin_dashboard.dart';
 import 'package:mamihshop/pages/users/profile_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mamihshop/services/firebase_messaging_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
+  // Initialize Firebase Messaging
+  final messagingService = FirebaseMessagingService();
+  await messagingService.initialize();
+
   runApp(MyApp());
 }
 
