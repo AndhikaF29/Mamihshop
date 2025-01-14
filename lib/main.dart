@@ -9,6 +9,10 @@ import 'package:mamihshop/services/firebase_messaging_service.dart';
 import 'package:mamihshop/pages/admin/add_product_page.dart';
 import 'package:mamihshop/pages/admin/product_management_page.dart';
 import 'package:mamihshop/pages/admin/edit_product_page.dart';
+import 'package:mamihshop/pages/admin/order_management.dart';
+import 'package:mamihshop/pages/admin/reports_page.dart';
+import 'package:mamihshop/pages/admin/order_details_page.dart';
+import 'package:mamihshop/pages/admin/about_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -53,6 +57,11 @@ class MyApp extends StatelessWidget {
         '/addProduct': (context) => const AddProductPage(),
         '/editProduct': (context) => EditProductPage(
             productId: ModalRoute.of(context)!.settings.arguments as String),
+        '/orderManagement': (context) => const OrderManagementPage(),
+        '/reports': (context) => const ReportsPage(),
+        '/orderDetails': (context) => OrderDetailsPage(
+            orderId: ModalRoute.of(context)!.settings.arguments as String),
+        '/about': (context) => const AboutPage(),
       },
     );
   }

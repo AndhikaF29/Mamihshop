@@ -96,6 +96,13 @@ class AdminDashboard extends StatelessWidget {
                     Colors.purple,
                     () => Navigator.pushNamed(context, '/settings'),
                   ),
+                  _buildMenuCard(
+                    context,
+                    'Tentang Aplikasi',
+                    Icons.info,
+                    Colors.blue,
+                    () => Navigator.pushNamed(context, '/about'),
+                  ),
                 ],
               ),
               const SizedBox(height: 24),
@@ -148,7 +155,7 @@ class AdminDashboard extends StatelessWidget {
                           onTap: () {
                             Navigator.pushNamed(
                               context,
-                              '/orderDetail',
+                              '/orderDetails', // Ganti '/orderDetail' menjadi '/orderDetails'
                               arguments: doc.id,
                             );
                           },
