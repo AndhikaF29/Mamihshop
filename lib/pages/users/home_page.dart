@@ -78,12 +78,6 @@ class _HomePageState extends State<HomePage> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    TextButton(
-                      onPressed: () {
-                        // TODO: Implementasi lihat semua
-                      },
-                      child: const Text('Lihat Semua'),
-                    ),
                   ],
                 ),
               ),
@@ -215,10 +209,10 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildCategories() {
     final List<Map<String, dynamic>> categories = [
-      {'icon': Icons.checkroom, 'label': 'Pakaian'},
-      {'icon': Icons.shopping_bag, 'label': 'Tas'},
-      {'icon': Icons.accessibility, 'label': 'Celana'},
-      {'icon': Icons.more_horiz, 'label': 'Lainnya'},
+      {'icon': Icons.checkroom, 'label': 'Pakaian', 'category': 'Pakaian'},
+      {'icon': Icons.shopping_bag, 'label': 'Tas', 'category': 'Tas'},
+      {'icon': Icons.accessibility, 'label': 'Celana', 'category': 'Celana'},
+      {'icon': Icons.more_horiz, 'label': 'Lainnya', 'category': 'Semua'},
     ];
 
     return Container(
@@ -226,19 +220,35 @@ class _HomePageState extends State<HomePage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: categories.map((category) {
-          return Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: secondaryColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
+          return InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const FindScreen(),
+                  settings: RouteSettings(
+                    arguments: category['category'],
+                  ),
                 ),
-                child: Icon(category['icon'], color: primaryColor),
-              ),
-              const SizedBox(height: 4),
-              Text(category['label'], style: const TextStyle(fontSize: 12)),
-            ],
+              );
+            },
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: secondaryColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(category['icon'], color: primaryColor),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  category['label'],
+                  style: const TextStyle(fontSize: 12),
+                ),
+              ],
+            ),
           );
         }).toList(),
       ),

@@ -20,6 +20,21 @@ class _FindScreenState extends State<FindScreen> {
   static const Color secondaryColor = Color(0xFFFF4D6D);
 
   @override
+  void initState() {
+    super.initState();
+    // Ambil kategori dari arguments
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final String? selectedCategory =
+          ModalRoute.of(context)?.settings.arguments as String?;
+      if (selectedCategory != null && selectedCategory != 'Semua') {
+        setState(() {
+          _selectedCategory = selectedCategory;
+        });
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final User? user = _auth.currentUser;
 
@@ -100,12 +115,6 @@ class _FindScreenState extends State<FindScreen> {
             "Urutkan",
             Icons.sort,
             () => _showSortDialog(),
-          ),
-          const SizedBox(width: 12),
-          _buildFilterButton(
-            "Filter",
-            Icons.filter_list,
-            () => _showFilterDialog(),
           ),
         ],
       ),
