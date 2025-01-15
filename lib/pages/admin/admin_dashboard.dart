@@ -111,41 +111,67 @@ class DashboardPage extends StatelessWidget {
             children: [
               // Greeting Card
               Card(
-                elevation: 4,
+                elevation: 8,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(15),
                 ),
                 child: Container(
+                  width: double.infinity,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        const Color(0xFFC9184A).withOpacity(0.8),
-                        const Color(0xFFF94144).withOpacity(0.8),
+                        const Color(0xFF2B2D42),
+                        const Color(0xFF8D99AE),
                       ],
                     ),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(15),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    padding: const EdgeInsets.all(20.0),
+                    child: Row(
                       children: [
-                        Text(
-                          'Selamat Datang, Admin!',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
+                        CircleAvatar(
+                          radius: 30,
+                          backgroundColor: Colors.white.withOpacity(0.2),
+                          child: const Icon(
+                            Icons.admin_panel_settings,
+                            size: 35,
                             color: Colors.white,
                           ),
                         ),
-                        SizedBox(height: 6),
-                        Text(
-                          'Email: ${user?.email}',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.white.withOpacity(0.9),
+                        const SizedBox(width: 20),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Selamat Datang, Admin!',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                '${user?.email}',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.white.withOpacity(0.9),
+                                  letterSpacing: 0.3,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
@@ -153,40 +179,45 @@ class DashboardPage extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 15),
+              const SizedBox(height: 16),
 
-              // Menu Grid
-              GridView.count(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 2,
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
+              // Menu List (menggantikan Menu Grid)
+              Column(
                 children: [
                   _buildMenuCard(
                     context,
-                    'Kelola\nProduk',
+                    'Kelola Produk',
                     Icons.inventory_2_rounded,
                     const Color(0xFF4361EE),
                     () => Navigator.pushNamed(context, '/productManagement'),
                   ),
+                  const SizedBox(height: 5),
                   _buildMenuCard(
                     context,
-                    'Kelola\nPesanan',
+                    'Kelola Pesanan',
                     Icons.shopping_bag_rounded,
                     const Color(0xFF2EC4B6),
                     () => Navigator.pushNamed(context, '/orderManagement'),
                   ),
+                  const SizedBox(height: 5),
                   _buildMenuCard(
                     context,
-                    'Laporan\nPenjualan',
+                    'Laporan Penjualan',
                     Icons.analytics_rounded,
                     const Color(0xFFFF9F1C),
                     () => Navigator.pushNamed(context, '/reports'),
                   ),
+                  const SizedBox(height: 5),
+                  _buildMenuCard(
+                    context,
+                    'Kelola Tabel',
+                    Icons.table_chart_rounded,
+                    const Color(0xFF7209B7),
+                    () => Navigator.pushNamed(context, '/checkoutTable'),
+                  ),
                 ],
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 15),
 
               // Recent Orders
               const Text(
@@ -267,16 +298,18 @@ class DashboardPage extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
+        width: double.infinity,
+        height: 80,
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
             colors: [
               color,
               color.withOpacity(0.8),
             ],
           ),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(15),
           boxShadow: [
             BoxShadow(
               color: color.withOpacity(0.3),
@@ -285,25 +318,30 @@ class DashboardPage extends StatelessWidget {
             ),
           ],
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Row(
           children: [
+            const SizedBox(width: 20),
             Icon(
               icon,
-              size: 50,
+              size: 35,
               color: Colors.white,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(width: 20),
             Text(
               title,
-              textAlign: TextAlign.center,
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                height: 1.2,
               ),
             ),
+            const Spacer(),
+            const Icon(
+              Icons.arrow_forward_ios,
+              color: Colors.white,
+              size: 20,
+            ),
+            const SizedBox(width: 20),
           ],
         ),
       ),

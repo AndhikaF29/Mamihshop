@@ -163,45 +163,53 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   // Ukuran dan Jumlah
                   Row(
                     children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "Ukuran",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
+                      if (product["category"].toString().toLowerCase() ==
+                              "celana" ||
+                          product["category"].toString().toLowerCase() ==
+                              "pakaian")
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "Ukuran",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 8),
-                            Container(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 12),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey[300]!),
-                                borderRadius: BorderRadius.circular(8),
+                              const SizedBox(height: 8),
+                              Container(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 12),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.grey[300]!),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: DropdownButton<String>(
+                                  value: _selectedSize,
+                                  isExpanded: true,
+                                  underline: Container(),
+                                  items: ["S", "M", "L"].map((size) {
+                                    return DropdownMenuItem(
+                                      value: size,
+                                      child: Text(size),
+                                    );
+                                  }).toList(),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _selectedSize = value!;
+                                    });
+                                  },
+                                ),
                               ),
-                              child: DropdownButton<String>(
-                                value: _selectedSize,
-                                isExpanded: true,
-                                underline: Container(),
-                                items: ["S", "M", "L"].map((size) {
-                                  return DropdownMenuItem(
-                                    value: size,
-                                    child: Text(size),
-                                  );
-                                }).toList(),
-                                onChanged: (value) {
-                                  setState(() {
-                                    _selectedSize = value!;
-                                  });
-                                },
-                              ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 16),
+                      if (product["category"].toString().toLowerCase() ==
+                              "celana" ||
+                          product["category"].toString().toLowerCase() ==
+                              "pakaian")
+                        const SizedBox(width: 16),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -319,13 +327,17 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     String productId =
         product['id'] ?? DateTime.now().millisecondsSinceEpoch.toString();
 
+    // Tentukan apakah produk memerlukan ukuran
+    bool needsSize = product["category"].toString().toLowerCase() == "celana" ||
+        product["category"].toString().toLowerCase() == "pakaian";
+
     try {
       // Cek apakah produk dengan size yang sama sudah ada
       final QuerySnapshot existingCart = await _firestore
           .collection("carts")
           .where("userId", isEqualTo: userId)
           .where("productId", isEqualTo: productId)
-          .where("size", isEqualTo: size)
+          .where("size", isEqualTo: needsSize ? size : "")
           .get();
 
       if (existingCart.docs.isNotEmpty) {
@@ -339,10 +351,11 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         });
       } else {
         // Buat dokumen baru jika belum ada
-        await _firestore
-            .collection("carts")
-            .doc("${userId}_${productId}_$size")
-            .set({
+        String docId = needsSize
+            ? "${userId}_${productId}_$size"
+            : "${userId}_${productId}";
+
+        await _firestore.collection("carts").doc(docId).set({
           "userId": userId,
           "productId": productId,
           "name": product['name'],
@@ -350,7 +363,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           "price": product['price'],
           "category": product['category'],
           "rating": product['rating'],
-          "size": size,
+          "size": needsSize ? size : "",
           "quantity": quantity,
           "timestamp": FieldValue.serverTimestamp(),
         });

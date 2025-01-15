@@ -89,8 +89,17 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: primaryColor,
         title: _buildSearchBar(),
         actions: [
-          _buildCartIcon(),
-          _buildNotificationIcon(),
+          Padding(
+            padding: const EdgeInsets.only(right: 10),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildCartIcon(),
+                const SizedBox(width: 10),
+                _buildNotificationIcon(),
+              ],
+            ),
+          ),
         ],
       ),
       body: RefreshIndicator(
@@ -248,7 +257,7 @@ class _HomePageState extends State<HomePage> {
       {'icon': Icons.checkroom, 'label': 'Pakaian', 'category': 'Pakaian'},
       {'icon': Icons.shopping_bag, 'label': 'Tas', 'category': 'Tas'},
       {'icon': Icons.accessibility, 'label': 'Celana', 'category': 'Celana'},
-      {'icon': Icons.more_horiz, 'label': 'Lainnya', 'category': 'Semua'},
+      {'icon': Icons.more_horiz, 'label': 'lainnya', 'category': 'Semua'},
     ];
 
     return Container(

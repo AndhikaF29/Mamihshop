@@ -14,6 +14,7 @@ import 'package:mamihshop/pages/admin/reports_page.dart';
 import 'package:mamihshop/pages/admin/order_details_page.dart';
 import 'package:mamihshop/pages/admin/about_page.dart';
 import 'package:mamihshop/splash_screen.dart';
+import 'package:mamihshop/pages/admin/checkout_table_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -51,6 +52,7 @@ class MyApp extends StatelessWidget {
             orderId: ModalRoute.of(context)!.settings.arguments as String),
         '/about': (context) => const AboutPage(),
         '/registerPage': (context) => const RegisterPage(),
+        '/checkoutTable': (context) => const CheckoutTableScreen(),
       },
     );
   }

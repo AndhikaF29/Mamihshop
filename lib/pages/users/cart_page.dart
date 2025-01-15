@@ -46,7 +46,7 @@ class _CartPageState extends State<CartPage> {
           'Keranjang Saya',
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: const Color(0xFFFF4D6D),
+        backgroundColor: const Color(0xFFFF758F),
         elevation: 0,
       ),
       body: user == null
@@ -314,7 +314,7 @@ class _CartPageState extends State<CartPage> {
                             : null,
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
-                          backgroundColor: const Color(0xFFFF4D6D),
+                          backgroundColor: const Color(0xFFFF758F),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),

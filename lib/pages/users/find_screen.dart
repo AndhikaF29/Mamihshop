@@ -191,8 +191,12 @@ class _FindScreenState extends State<FindScreen> {
   List<Map<String, dynamic>> _filterAndSortProducts(
       List<Map<String, dynamic>> products) {
     var filtered = products.where((product) {
+      print("Product category: ${product["category"]}");
+      print("Selected category: $_selectedCategory");
+
       bool categoryMatch = _selectedCategory == "Semua" ||
-          product["category"] == _selectedCategory;
+          product["category"].toString().toLowerCase() ==
+              _selectedCategory.toLowerCase();
       bool searchMatch = product["name"]
           .toString()
           .toLowerCase()
@@ -203,12 +207,12 @@ class _FindScreenState extends State<FindScreen> {
     // Sorting
     switch (_sortBy) {
       case "Harga Tertinggi":
-        filtered.sort((a, b) => int.parse(b["price"].toString())
-            .compareTo(int.parse(a["price"].toString())));
+        filtered.sort((a, b) => (double.parse(b["price"].toString()))
+            .compareTo(double.parse(a["price"].toString())));
         break;
       case "Harga Terendah":
-        filtered.sort((a, b) => int.parse(a["price"].toString())
-            .compareTo(int.parse(b["price"].toString())));
+        filtered.sort((a, b) => (double.parse(a["price"].toString()))
+            .compareTo(double.parse(b["price"].toString())));
         break;
       case "Rating Tertinggi":
         filtered.sort((a, b) => b["rating"].compareTo(a["rating"]));
@@ -289,7 +293,7 @@ class _FindScreenState extends State<FindScreen> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        '${product["rating"]} | Terjual 100+',
+                        '${product["rating"]} | Terjual ${product["sales"] ?? 0}',
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.grey[600],

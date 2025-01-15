@@ -18,7 +18,7 @@ class _AddProductPageState extends State<AddProductPage> {
   final TextEditingController _salesController = TextEditingController();
 
   String _selectedCategory = 'Pakaian';
-  final List<String> _categories = ['Pakaian', 'Tas', 'Celana'];
+  final List<String> _categories = ['Pakaian', 'Tas', 'Celana','lainnya'];
   final _formKey = GlobalKey<FormState>();
 
   Future<void> _addProduct() async {
