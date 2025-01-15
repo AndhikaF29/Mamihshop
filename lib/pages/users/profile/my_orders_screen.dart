@@ -54,7 +54,7 @@ class MyOrdersScreen extends StatelessWidget {
       return Scaffold(
         appBar: AppBar(
           title: const Text('Pesanan Saya'),
-          backgroundColor: const Color(0xFFC9184A),
+          backgroundColor: const Color(0xFFFF758F),
         ),
         body: const Center(
           child: Text('Silakan login terlebih dahulu'),
@@ -64,8 +64,9 @@ class MyOrdersScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Pesanan Saya'),
-        backgroundColor: const Color(0xFFC9184A),
+        title:
+            const Text('Pesanan Saya', style: TextStyle(color: Colors.white)),
+        backgroundColor: const Color(0xFFFF4D6D),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
@@ -254,7 +255,7 @@ class MyOrdersScreen extends StatelessWidget {
                               style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFFC9184A),
+                                color: Color(0xFFFF758F),
                               ),
                             ),
                           ],

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:mamihshop/pages/users/trending_detail_screen.dart';
 import 'package:mamihshop/pages/users/home_page.dart';
 import 'package:mamihshop/pages/users/profile_screen.dart';
@@ -15,7 +14,7 @@ class TrendingScreen extends StatefulWidget {
 }
 
 class _TrendingScreenState extends State<TrendingScreen> {
-  static const Color primaryColor = Color(0xFFC9184A);
+  static const Color primaryColor = Color(0xFFFF758F);
   static const Color secondaryColor = Color(0xFFFF4D6D);
   List<dynamic> _news = [];
   bool _isLoading = true;

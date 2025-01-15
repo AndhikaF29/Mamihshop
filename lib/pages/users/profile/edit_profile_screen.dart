@@ -68,7 +68,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Profil'),
-        backgroundColor: const Color(0xFFFF4D6D),
+        backgroundColor: const Color(0xFFFF758F),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -110,14 +110,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _updateProfile,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFF4D6D),
+                    backgroundColor: const Color.fromARGB(255, 255, 114, 140),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                   child: _isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
                       : const Text(
                           'Simpan',
-                          style: TextStyle(fontSize: 16),
+                          style: TextStyle(fontSize: 16, color: Colors.white),
                         ),
                 ),
               ),

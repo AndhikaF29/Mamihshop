@@ -329,6 +329,16 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
         status: newStatus,
       );
 
+      await _firestore.collection('notifications').add({
+        'userId': userId,
+        'title': 'Status Pesanan Diperbarui',
+        'body': 'Pesanan Anda sekarang berstatus: $newStatus',
+        'type': 'order_status',
+        'orderId': orderId,
+        'createdAt': FieldValue.serverTimestamp(),
+        'isRead': false,
+      });
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

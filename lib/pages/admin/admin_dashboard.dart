@@ -2,9 +2,52 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'about_page.dart';
 
-class AdminDashboard extends StatelessWidget {
+class AdminDashboard extends StatefulWidget {
   const AdminDashboard({Key? key}) : super(key: key);
+
+  @override
+  State<AdminDashboard> createState() => _AdminDashboardState();
+}
+
+class _AdminDashboardState extends State<AdminDashboard> {
+  int _selectedIndex = 0;
+
+  final List<Widget> _pages = [
+    const DashboardPage(),
+    const AboutPage(),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: _pages[_selectedIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        selectedItemColor: const Color(0xFFC9184A),
+        onTap: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.dashboard),
+            label: 'Dashboard',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.info),
+            label: 'Tentang',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class DashboardPage extends StatelessWidget {
+  const DashboardPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -12,14 +55,50 @@ class AdminDashboard extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dashboard Admin'),
-        backgroundColor: const Color(0xFFC9184A),
+        title: const Text('Dashboard Admin',
+            style: TextStyle(color: Colors.white)),
+        automaticallyImplyLeading: false,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFFFF758F),
+                Color(0xFFFF4D6D),
+              ],
+            ),
+          ),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.exit_to_app),
+            color: Colors.white,
             onPressed: () async {
-              await FirebaseAuth.instance.signOut();
-              Navigator.of(context).pushReplacementNamed('/loginPage');
+              final shouldLogout = await showDialog<bool>(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text('Konfirmasi'),
+                    content: const Text('Apakah Anda yakin ingin keluar?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: const Text('Batal'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        child: const Text('Keluar'),
+                      ),
+                    ],
+                  );
+                },
+              );
+
+              if (shouldLogout == true) {
+                await FirebaseAuth.instance.signOut();
+                Navigator.of(context).pushReplacementNamed('/loginPage');
+              }
             },
           ),
         ],
@@ -33,79 +112,81 @@ class AdminDashboard extends StatelessWidget {
               // Greeting Card
               Card(
                 elevation: 4,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Selamat Datang, Admin!',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).primaryColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        const Color(0xFFC9184A).withOpacity(0.8),
+                        const Color(0xFFF94144).withOpacity(0.8),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Selamat Datang, Admin!',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Email: ${user?.email}',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey[600],
+                        SizedBox(height: 6),
+                        Text(
+                          'Email: ${user?.email}',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white.withOpacity(0.9),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 15),
 
               // Menu Grid
               GridView.count(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 crossAxisCount: 2,
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
+                mainAxisSpacing: 10,
+                crossAxisSpacing: 10,
                 children: [
                   _buildMenuCard(
                     context,
-                    'Kelola Produk',
-                    Icons.inventory,
-                    Colors.blue,
+                    'Kelola\nProduk',
+                    Icons.inventory_2_rounded,
+                    const Color(0xFF4361EE),
                     () => Navigator.pushNamed(context, '/productManagement'),
                   ),
                   _buildMenuCard(
                     context,
-                    'Kelola Pesanan',
-                    Icons.shopping_cart,
-                    Colors.green,
+                    'Kelola\nPesanan',
+                    Icons.shopping_bag_rounded,
+                    const Color(0xFF2EC4B6),
                     () => Navigator.pushNamed(context, '/orderManagement'),
                   ),
                   _buildMenuCard(
                     context,
-                    'Laporan',
-                    Icons.bar_chart,
-                    Colors.orange,
+                    'Laporan\nPenjualan',
+                    Icons.analytics_rounded,
+                    const Color(0xFFFF9F1C),
                     () => Navigator.pushNamed(context, '/reports'),
-                  ),
-                  _buildMenuCard(
-                    context,
-                    'Pengaturan',
-                    Icons.settings,
-                    Colors.purple,
-                    () => Navigator.pushNamed(context, '/settings'),
-                  ),
-                  _buildMenuCard(
-                    context,
-                    'Tentang Aplikasi',
-                    Icons.info,
-                    Colors.blue,
-                    () => Navigator.pushNamed(context, '/about'),
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
 
               // Recent Orders
               const Text(
@@ -136,6 +217,10 @@ class AdminDashboard extends StatelessWidget {
                       final data = doc.data() as Map<String, dynamic>;
                       return Card(
                         margin: const EdgeInsets.only(bottom: 8),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 4,
                         child: ListTile(
                           leading: CircleAvatar(
                             backgroundColor:
@@ -155,7 +240,7 @@ class AdminDashboard extends StatelessWidget {
                           onTap: () {
                             Navigator.pushNamed(
                               context,
-                              '/orderDetails', // Ganti '/orderDetail' menjadi '/orderDetails'
+                              '/orderDetails',
                               arguments: doc.id,
                             );
                           },
@@ -179,43 +264,47 @@ class AdminDashboard extends StatelessWidget {
     Color color,
     VoidCallback onTap,
   ) {
-    return Card(
-      elevation: 4,
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                color.withOpacity(0.8),
-                color,
-              ],
-            ),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                size: 48,
-                color: Colors.white,
-              ),
-              const SizedBox(height: 12),
-              Text(
-                title,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              color,
+              color.withOpacity(0.8),
             ],
           ),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: color.withOpacity(0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 50,
+              color: Colors.white,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                height: 1.2,
+              ),
+            ),
+          ],
         ),
       ),
     );

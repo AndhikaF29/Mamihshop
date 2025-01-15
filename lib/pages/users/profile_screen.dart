@@ -18,7 +18,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   int _selectedIndex = 2;
-  static const Color primaryColor = Color(0xFFC9184A);
+  static const Color primaryColor = Color(0xFFFF758F);
   static const Color secondaryColor = Color(0xFFFF4D6D);
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

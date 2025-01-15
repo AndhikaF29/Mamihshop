@@ -16,7 +16,7 @@ class _FindScreenState extends State<FindScreen> {
   String _selectedCategory = "Semua";
   String _sortBy = "Terbaru";
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  static const Color primaryColor = Color(0xFFC9184A);
+  static const Color primaryColor = Color(0xFFFF758F);
   static const Color secondaryColor = Color(0xFFFF4D6D);
 
   @override

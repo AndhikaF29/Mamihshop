@@ -19,8 +19,20 @@ class _NotificationScreenState extends State<NotificationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Pemberitahuan'),
-        backgroundColor: const Color(0xFFC9184A),
+        title:
+            const Text('Pemberitahuan', style: TextStyle(color: Colors.white)),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFFFF758F),
+                Color(0xFFFF4D6D),
+              ],
+            ),
+          ),
+        ),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: _firestore
@@ -68,6 +80,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
               final notification =
                   notifications[index].data() as Map<String, dynamic>;
               final createdAt = notification['createdAt'] as Timestamp;
+              final isRead = notification['isRead'] as bool? ?? false;
 
               return Dismissible(
                 key: Key(notifications[index].id),
@@ -92,9 +105,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     horizontal: 16,
                     vertical: 8,
                   ),
+                  color: isRead ? Colors.white : const Color(0xFFFFF0F3),
                   child: ListTile(
                     leading: CircleAvatar(
-                      backgroundColor: const Color(0xFFC9184A),
+                      backgroundColor: const Color(0xFFFF758F),
                       child: Icon(
                         _getNotificationIcon(notification['type'] ?? ''),
                         color: Colors.white,
@@ -122,7 +136,13 @@ class _NotificationScreenState extends State<NotificationScreen> {
                       ],
                     ),
                     onTap: () async {
-                      if (notification['orderId'] != null) {
+                      // Tandai sebagai telah dibaca
+                      await _firestore
+                          .collection('notifications')
+                          .doc(notifications[index].id)
+                          .update({'isRead': true});
+
+                      if (notification['orderId'] != null && mounted) {
                         final orderDoc = await _firestore
                             .collection('checkouts')
                             .doc(notification['orderId'])

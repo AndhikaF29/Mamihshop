@@ -18,8 +18,8 @@ class ProductDetailPage extends StatefulWidget {
 class _ProductDetailPageState extends State<ProductDetailPage> {
   String _selectedSize = "M";
   int _quantity = 1;
-  static const Color primaryColor = Color(0xFFC9184A);
-  static const Color secondaryColor = Color(0xFFFF4D6D);
+  static const Color primaryColor = Color(0xFFFF4D6D);
+  static const Color secondaryColor = Color(0xFFFF758F);
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
@@ -293,14 +293,14 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   Navigator.pop(context);
                 },
           style: ElevatedButton.styleFrom(
-            backgroundColor: primaryColor,
+            backgroundColor: const Color.fromARGB(255, 255, 96, 125),
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 16),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
           ),
-          icon: const Icon(Icons.shopping_cart),
+          icon: const Icon(Icons.shopping_cart, color: Colors.white),
           label: const Text(
             "Tambah ke Keranjang",
             style: TextStyle(

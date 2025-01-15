@@ -494,13 +494,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             color: Colors.white,
           ),
         ),
-        backgroundColor: const Color(0xFFC9184A),
+        backgroundColor: const Color(0xFFFF758F),
         elevation: 0,
       ),
       body: _isLoading
           ? const Center(
               child: CircularProgressIndicator(
-              color: Color(0xFFC9184A),
+              color: Color(0xFFFF4D6D),
             ))
           : SingleChildScrollView(
               child: Column(
@@ -509,7 +509,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFC9184A),
+                      color: const Color(0xFFFF758F),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withOpacity(0.1),
@@ -618,7 +618,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                           style: const TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.bold,
-                                            color: Color(0xFFC9184A),
+                                            color: Color(0xFFFF4D6D),
                                           ),
                                         ),
                                         Text(
@@ -677,7 +677,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                               if (value) _loadUserData();
                                             });
                                           },
-                                          activeColor: const Color(0xFFC9184A),
+                                          activeColor: const Color(0xFFFF758F),
                                         ),
                                       ),
                                       Expanded(
@@ -695,7 +695,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                                 _addressController.clear();
                                             });
                                           },
-                                          activeColor: const Color(0xFFC9184A),
+                                          activeColor: const Color(0xFFFF758F),
                                         ),
                                       ),
                                     ],
@@ -816,7 +816,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               child: ElevatedButton(
                 onPressed: _processCheckout,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFA4133C),
+                  backgroundColor: const Color(0xFFFF758F),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -844,7 +844,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         style: const TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.bold,
-          color: Color(0xFFC9184A),
+          color: Color(0xFFFF758F),
         ),
       ),
     );
@@ -860,7 +860,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       label: Text(label, style: const TextStyle(fontSize: 12)),
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFFC9184A),
+        backgroundColor: const Color(0xFFFF758F),
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         shape: RoundedRectangleBorder(
@@ -884,7 +884,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Color(0xFFC9184A)),
+        borderSide: const BorderSide(color: Color(0xFFFF758F)),
       ),
       filled: true,
       fillColor: Colors.white,
@@ -1005,7 +1005,7 @@ class _MapScreenState extends State<MapScreen> {
               color: Colors.white,
               fontWeight: FontWeight.bold,
             )),
-        backgroundColor: const Color(0xFFFF4D6D),
+        backgroundColor: const Color(0xFFFF758F),
         elevation: 0,
         actions: [
           if (_selectedLocation != null)

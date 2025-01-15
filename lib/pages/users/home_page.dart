@@ -28,7 +28,7 @@ class _HomePageState extends State<HomePage> {
   String _sortBy = "Terbaru";
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  static const Color primaryColor = Color(0xFFC9184A);
+  static const Color primaryColor = Color(0xFFFF758F);
   static const Color secondaryColor = Color(0xFFFF4D6D);
   final PageController _pageController = PageController();
   int _currentPage = 0;
@@ -90,17 +90,7 @@ class _HomePageState extends State<HomePage> {
         title: _buildSearchBar(),
         actions: [
           _buildCartIcon(),
-          IconButton(
-            icon: const Icon(Icons.notifications, color: Colors.white),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const NotificationScreen(),
-                ),
-              );
-            },
-          ),
+          _buildNotificationIcon(),
         ],
       ),
       body: RefreshIndicator(
@@ -538,6 +528,64 @@ class _HomePageState extends State<HomePage> {
                       ),
                       textAlign: TextAlign.center,
                     ),
+                  ),
+                ),
+              );
+            },
+          ),
+      ],
+    );
+  }
+
+  Widget _buildNotificationIcon() {
+    final User? user = _auth.currentUser;
+
+    return Stack(
+      children: [
+        IconButton(
+          icon: const Icon(Icons.notifications, color: Colors.white),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const NotificationScreen(),
+              ),
+            );
+          },
+        ),
+        if (user != null)
+          StreamBuilder<QuerySnapshot>(
+            stream: _firestore
+                .collection('notifications')
+                .where('userId', isEqualTo: user.uid)
+                .where('isRead',
+                    isEqualTo: false) // Hanya notifikasi yang belum dibaca
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                return const SizedBox.shrink();
+              }
+
+              return Positioned(
+                right: 0,
+                top: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  constraints: const BoxConstraints(
+                    minWidth: 20,
+                    minHeight: 20,
+                  ),
+                  child: Text(
+                    '${snapshot.data!.docs.length}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
                 ),
               );

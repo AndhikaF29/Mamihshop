@@ -5,7 +5,7 @@ import 'package:share_plus/share_plus.dart';
 
 class TrendingDetailScreen extends StatelessWidget {
   final Map<String, dynamic> article;
-  static const Color primaryColor = Color(0xFFC9184A);
+  static const Color primaryColor = Color(0xFFFF758F);
   static const Color secondaryColor = Color(0xFFFF4D6D);
 
   const TrendingDetailScreen({super.key, required this.article});
@@ -187,7 +187,7 @@ class TrendingDetailScreen extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _shareArticle(context),
-        backgroundColor: secondaryColor,
+        backgroundColor: const Color.fromARGB(255, 255, 96, 125),
         child: const Icon(Icons.share),
       ),
     );

@@ -1,28 +1,26 @@
 import 'package:intl/intl.dart';
 
 class CurrencyFormat {
-  static String convertToIdr(dynamic number) {
-    NumberFormat currencyFormatter = NumberFormat.currency(
-      locale: 'id',
-      symbol: 'Rp ',
-      decimalDigits: 0,
-    );
-
-    // Jika input adalah string dengan desimal
-    if (number is String) {
-      return currencyFormatter.format(double.parse(number));
-    }
-
-    // Jika input adalah double
-    if (number is double) {
-      return currencyFormatter.format(number);
-    }
-
-    // Jika input adalah int
-    if (number is int) {
-      return currencyFormatter.format(number);
-    }
-
-    return "Rp 0";
+  static String convertToIdr(dynamic number, {bool shortFormat = false}) {
+  NumberFormat currencyFormatter = NumberFormat.currency(
+    locale: 'id',
+    symbol: 'Rp ',
+    decimalDigits: 0,
+  );
+  
+  double value = 0;
+  if (number is String) {
+    value = double.parse(number);
+  } else if (number is double || number is int) {
+    value = number.toDouble();
   }
+
+  if (shortFormat && value >= 1000000) {
+    return 'Rp ${(value/1000000).toStringAsFixed(1)}M';
+  } else if (shortFormat && value >= 1000) {
+    return 'Rp ${(value/1000).toStringAsFixed(1)}K';
+  }
+  
+  return currencyFormatter.format(value);
+}
 }

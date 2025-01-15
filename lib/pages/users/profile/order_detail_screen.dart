@@ -54,8 +54,9 @@ class OrderDetailScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Detail Pesanan'),
-        backgroundColor: const Color(0xFFC9184A),
+        title:
+            const Text('Detail Pesanan', style: TextStyle(color: Colors.white)),
+        backgroundColor: const Color(0xFFFF758F),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -182,7 +183,7 @@ class OrderDetailScreen extends StatelessWidget {
                                     style: const TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
-                                      color: Color(0xFFC9184A),
+                                      color: Color(0xFFFF758F),
                                     ),
                                   ),
                                   Text(
@@ -286,7 +287,7 @@ class OrderDetailScreen extends StatelessWidget {
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFFC9184A),
+                          color: Color(0xFFFF758F),
                         ),
                       ),
                     ],

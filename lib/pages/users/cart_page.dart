@@ -111,7 +111,7 @@ class _CartPageState extends State<CartPage> {
                                         _calculateTotal(snapshot.data!.docs);
                                       });
                                     },
-                                    activeColor: const Color(0xFFC9184A),
+                                    activeColor: const Color(0xFFFF4D6D),
                                   ),
                                   // Image
                                   ClipRRect(
@@ -146,7 +146,7 @@ class _CartPageState extends State<CartPage> {
                                               double.parse(
                                                   product["price"].toString())),
                                           style: TextStyle(
-                                            color: const Color(0xFFFF4D6D),
+                                            color: const Color(0xFFFF758F),
                                             fontWeight: FontWeight.w500,
                                           ),
                                         ),
@@ -156,7 +156,7 @@ class _CartPageState extends State<CartPage> {
                                             IconButton(
                                               icon: const Icon(
                                                   Icons.remove_circle_outline),
-                                              color: const Color(0xFFC9184A),
+                                              color: const Color(0xFFFF758F),
                                               onPressed: () {
                                                 if (product["quantity"] > 1) {
                                                   _firestore
@@ -178,7 +178,7 @@ class _CartPageState extends State<CartPage> {
                                             IconButton(
                                               icon: const Icon(
                                                   Icons.add_circle_outline),
-                                              color: const Color(0xFFC9184A),
+                                              color: const Color(0xFFFF758F),
                                               onPressed: () {
                                                 _firestore
                                                     .collection("carts")
